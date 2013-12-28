@@ -49,7 +49,7 @@ void convert(AVFrame* frame, unsigned char* pixels, int pitch)
     }
 }
 
-void convert_display_frame(SDL_Texture *texture, AVFrame* frame, SDL_Renderer *renderer)
+void display_frame(SDL_Texture *texture, AVFrame* frame, SDL_Renderer *renderer)
 {
     unsigned char* pixels;
     int pitch;
@@ -63,8 +63,8 @@ void convert_display_frame(SDL_Texture *texture, AVFrame* frame, SDL_Renderer *r
     SDL_RenderClear(renderer);
     SDL_RenderCopy(renderer, texture, NULL, NULL);
     SDL_RenderPresent(renderer);
-    SDL_Delay(20);
-}//frame
+    /*SDL_Delay(20);*/
+}
 
 int event_handle()
 {
@@ -106,14 +106,17 @@ void sdl_init(AVFormatContext* format_context, AVCodecContext* codec_context, in
     printf("Using %s rendering\n", info.name);
 
     SDL_Log("+++++ INIT DONE +++++");
-    frame = avcodec_alloc_frame();
+    frame = av_frame_alloc();
     if (frame == NULL)
     {
         printf("Cannot allocate pFrame\n");
         exit(-1);
     }
-    texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_YV12, SDL_TEXTUREACCESS_STREAMING, codec_context->width, codec_context->height);//3 plane texture
-
+    texture = SDL_CreateTexture(renderer, 
+                                SDL_PIXELFORMAT_YV12, 
+                                SDL_TEXTUREACCESS_STREAMING, 
+                                codec_context->width, 
+                                codec_context->height);
     if (!texture) {
         fprintf(stderr, "Couldn't set create texture: %s\n", 
                 SDL_GetError());
@@ -129,7 +132,7 @@ void sdl_init(AVFormatContext* format_context, AVCodecContext* codec_context, in
 
             if(frame_finished)
             {
-                convert_display_frame(texture, frame, renderer);
+                display_frame(texture, frame, renderer);
             }//frame
             av_free_packet(&avpacket);
         }//avpacket
@@ -214,12 +217,8 @@ int main(int argc, char * argv[]) {
 
     }
 
-    /*
-       Initializing display
-       */
     printf("Width:%d\n",codec_context->width);
     printf("height:%d\n",codec_context->height);
-    //exit(0);
 
     sdl_init(format_context, codec_context,videostream);
 
