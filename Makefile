@@ -2,11 +2,12 @@
 # http://www.gnu.org/software/make/manual/make.html
 #
 CC:=gcc
-INCLUDES:=$(shell pkg-config --cflags libavformat libavcodec libswscale libavutil ) $(shell sdl2-config --cflags)
+INCLUDES:=$(shell pkg-config --cflags libavformat libavcodec libswscale libswresample libavutil ) $(shell sdl2-config --cflags)
 
 CFLAGS:=-Wall -ggdb
-LDFLAGS:=$(shell pkg-config --libs libavformat libavcodec libswscale libavutil )  $(shell sdl2-config --libs) -lm
-EXE:=sdl2_ffmepg_example.out
+LDFLAGS:=libportaudio.a $(shell pkg-config --libs libavformat libavcodec libswscale libswresample libavutil )  $(shell sdl2-config --libs) -lm
+EXE:=tutorial01.out tutorial02.out tutorial03.out tutorial04.out\
+	tutorial05.out tutorial06.out tutorial07.out
 
 #
 # This is here to prevent Make from deleting secondary files.
@@ -18,7 +19,8 @@ EXE:=sdl2_ffmepg_example.out
 # $< is the first dependency in the dependency list
 # $@ is the target name
 #
-all: dirs $(addprefix bin/, $(EXE)) tags
+#all: dirs $(addprefix bin/, $(EXE)) tags
+all: dirs $(addprefix bin/, mytutor3.out sdl2_ffmepg_example.out  yuvspeedtest.out port_audio.out) tags
 
 dirs:
 	mkdir -p obj

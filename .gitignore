@@ -13,6 +13,7 @@
 
 # exe file
 *.out
+*.swp
 tags
 
 # test media file
