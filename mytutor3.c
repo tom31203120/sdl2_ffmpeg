@@ -535,6 +535,106 @@ FFMPEG_CTX *ffmpeg_init(char *filename)
 
     return pCtx;
 }
+typedef struct slist{
+    int    end_time;
+    double avg_val;
+    struct slist *pnext;
+}S_LIST;
+
+typedef struct {
+    double avg_max;
+    double avg_mid;
+    double avg_min;
+
+    uint16_t max_frame;
+    S_LIST *map_list;
+}ClacCtx;
+
+S_LIST *get_head_node(S_LIST *plist, int start_time)
+{
+    S_LIST *pnode = plist->pnext;
+    while(pnode->end_time < start_time)
+    {
+        plist->pnext = pnode->pnext;
+        free(pnode);
+        pnode = plist->pnext;
+    }
+    return pnode;
+}
+
+int calc_init(char *music_name, ClacCtx **pOutCtx)
+{
+    FILE *fp = fopen(music_name,"rb");
+    if (!fp)
+    {
+        //get_map_file_from_server
+        printf("could not find the Muisic Data File\n");
+        return -1;
+    }
+    
+    //construct the 
+    ClacCtx *pCtx = (ClacCtx*)malloc(sizeof(ClacCtx));
+    if (!pCtx)
+    {
+        printf("error malloc \n");
+        return -1;
+    }
+    memset(pCtx, 0, sizeof(ClacCtx));
+
+    //construct the list from fp data
+    S_LIST *plist = (S_LIST *)malloc(sizeof(S_LIST));
+    if (!plist)
+    {
+        printf("error malloc \n");
+        return -1;
+    }
+    memset(plist, 0, sizeof(S_LIST));
+
+    //.......
+
+    pCtx->map_list = plist;
+    *pOutCtx = pCtx;
+    return 0;
+}
+
+void calc_uninit(ClacCtx *pInCtx)
+{
+    // free list
+    S_LIST *pdel, *pnode = pInCtx->map_list;
+    while(pnode->pnext)
+    {
+        pdel = pnode->pnext;
+        free(pdel);
+        pnode = pdel;
+    }
+    free(pnode);
+
+    free(pInCtx);
+    return;
+}
+
+
+double calc_score(uint16_t *frame_stream, int len, int start_time, ClacCtx *pCtx)
+{
+    double avg_val = 0;    
+    double score = -1.0;
+    S_LIST *pHead = get_head_node(pCtx->map_list, start_time);
+    if (pHead && start_time>pHead->end_time)
+    {
+        for(int i;i<len;i++)
+        {
+            /*avg_val += frame_stream[i]/pCtx->max_frame;*/
+            /*avg_val = (avg_val*(i-1)+frame_stream[i])/i;*/
+            avg_val = avg_val*(i-1)/i+frame_stream[i]/i;
+        }
+        score = avg_val/pHead->avg_val;
+        if (score > 1) score = 2 - score;
+
+        pCtx->map_list->pnext = pHead->pnext;
+        free(pHead);
+    }
+    return score;
+}
 
 int main(int argc, char *argv[]) {
     FFMPEG_CTX *pCtx = NULL;
