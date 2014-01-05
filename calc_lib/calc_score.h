@@ -2,7 +2,7 @@
 #define BINARY_COUNT 10
 
 typedef struct slist{
-    int    end_time;
+    double end_time;
     double avg_val;
     struct slist *pnext;
 }S_LIST;
@@ -23,6 +23,6 @@ typedef struct {
 
 int calc_init(char *music_name, CalcCtx **pOutCtx);
 void calc_uninit(CalcCtx *pInCtx);
-int calc_score(short *frame_stream, int len, int start_time, CalcCtx *pCtx);
+int calc_score(short *frame_stream, int len, double start_time, CalcCtx *pCtx);
 int finish_calc(CalcCtx *pCtx);
 

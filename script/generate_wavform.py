@@ -114,6 +114,20 @@ def binary_to_redis(musicno, nd_times, waves, mean, minimal, maximal, maxframe):
         'maxframe': maxframe
     })
 
+def get_binary_from_redis(musicno):
+    r = redis.Redis(host=REDIS['host'], port=REDIS['port'], db=REDIS['db'])
+    key = 'music_binary:%s' % musicno
+    res = r.hgetall(key)
+    import pdb;pdb.set_trace();
+    #return {
+        #'x_axis': nd_times.tolist(),
+        #'y_axis': waves.tolist(),
+        #'mean': mean,
+        #'min': minimal,
+        #'max': maximal,
+        #'maxframe': maxframe
+    #}
+
 
 def draw_plot(waves, nd_times):
     import matplotlib
@@ -127,8 +141,9 @@ def draw_plot(waves, nd_times):
 
 
 if __name__ == '__main__':
-    nd_times = read_lrc('7013785.lrc')
-    data = wave_form('7013785.wav', nd_times)
-    binarys = binary_zation(*data[0:-1])
-    binary_to_redis(7013785, nd_times, binarys, data[1], data[2], data[3], data[4])
+    #nd_times = read_lrc('7013785.lrc')
+    #data = wave_form('7013785.wav', nd_times)
+    #binarys = binary_zation(*data[0:-1])
+    #binary_to_redis(7013785, nd_times, binarys, data[1], data[2], data[3], data[4])
+    get_binary_from_redis(7013785)
 

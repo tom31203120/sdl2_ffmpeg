@@ -46,9 +46,14 @@ static int record_callback( const void *inputBuffer, void *outputBuffer,
     (void) statusFlags;
     (void) userData;
 
+    /*printf("data->cur_time=%lf, data->pCtx\n", data->cur_time, data->pCtx);*/
     int get_score = calc_score((short *)inputBuffer, framesPerBuffer, data->cur_time, data->pCtx);
     if (get_score){
-        printf("total score = %lf, current score = %lf\n", data->pCtx->total_score, data->pCtx->cur_score);
+        printf("total score = %0.2lf, current score = %0.2lf\n", data->pCtx->total_score*100, data->pCtx->cur_score*100);
+
+        printf("total num= %d, current num= %d\n", data->pCtx->total_rec_num, data->pCtx->idx_rec_num);
+        printf("===============================================\n");
+      
     }
 
     data->cur_time += 1.0*framesPerBuffer/SAMPLE_RATE;
@@ -118,7 +123,7 @@ done:
 
 int main(int argc, char *argv[]) {
     CalcCtx *pCtx = NULL;
-    char music_name[]="大海.wav";
+    char music_name[]="test.json";
     int res = calc_init(music_name, &pCtx);
     if (res == -1 || NULL == pCtx)
     {

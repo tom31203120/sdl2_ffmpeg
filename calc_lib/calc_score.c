@@ -3,6 +3,7 @@
 #include <stddef.h>
 #include <string.h>
 #include <assert.h>
+#include <math.h>
 
 #include "json/json.h"
 #include "calc_score.h"
@@ -40,6 +41,7 @@ int build_context(json_object* jb, CalcCtx *pCtx)
     pCtx->max_frame = json_object_get_int(obj);
 
     x_obj = json_object_object_get(jb, "x");
+    y_obj = json_object_object_get(jb, "y");
     assert(json_type_array == json_object_get_type(x_obj));
     assert(json_type_array == json_object_get_type(y_obj));
 
@@ -159,16 +161,17 @@ int finish_calc(CalcCtx *pCtx)
     return pCtx->idx_rec_num >= pCtx->total_rec_num;
 }
 
-int calc_score(short *frame_stream, int len, int start_time, CalcCtx *pCtx)
+int calc_score(short *frame_stream, int len, double start_time, CalcCtx *pCtx)
 {
     double sum=0, avg_val = 0;    
     double score = 0;
+    int i;
     S_LIST *pHead = get_head_node(pCtx->map_list, start_time);
     if (pHead && start_time>pHead->end_time)
     {
-        for(int i;i<len;i++)
+        for(i=0;i<len;i++)
         {
-            sum += frame_stream[i]/pCtx->max_frame;
+            sum += fabs(1.0 * frame_stream[i])/pCtx->max_frame;
             /*avg_val = (avg_val*(i-1)+frame_stream[i])/i;*/
             /*avg_val = avg_val*(i-1)/i+frame_stream[i]/i;*/
         }
@@ -176,12 +179,13 @@ int calc_score(short *frame_stream, int len, int start_time, CalcCtx *pCtx)
         //二值化数据1~10
         score = bin_zation(avg_val, pCtx);
         //和服务器端的计算结果比较
-        score = avg_val/pHead->avg_val;
+        printf("server=%lf,    client=%lf\n",pHead->avg_val, score);
+        score = score/pHead->avg_val;
         if (score > 1) score = 2 - score;
         //记录当前得分，并综合总得分
         pCtx->cur_score   = score;
         pCtx->total_score = \
-            (pCtx->cur_score + pCtx->total_score*(pCtx->idx_rec_num-1))/pCtx->idx_rec_num;
+            (pCtx->cur_score + pCtx->total_score*pCtx->idx_rec_num)/(pCtx->idx_rec_num+1);
 
         //维护上下文，方便下次计算
         pCtx->idx_rec_num ++;
@@ -191,5 +195,3 @@ int calc_score(short *frame_stream, int len, int start_time, CalcCtx *pCtx)
     }
     return 0;
 }
-
-

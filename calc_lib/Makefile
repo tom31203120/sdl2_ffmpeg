@@ -4,8 +4,8 @@
 CC:=gcc
 INCLUDES:=$(shell pkg-config --cflags)
 
-CFLAGS:=-Wall -ggdb -std=c99 
-LDFLAGS:=libportaudio.a  -lm -lpthread -lrt -lasound
+CFLAGS:=-Wall -ggdb 
+LDFLAGS:=libportaudio.a  -lm -lpthread -lrt -lasound -ljson
 EXE:=demo.out
 
 #
