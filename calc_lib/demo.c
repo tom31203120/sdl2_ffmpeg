@@ -54,7 +54,7 @@ static int record_callback( const void *inputBuffer, void *outputBuffer,
     data->cur_time += 1.0*framesPerBuffer/SAMPLE_RATE;
     /*printf("cur_time = %lf\n", data->cur_time);*/
 
-    if (data->pCtx->idx_rec_num >= data->pCtx->total_rec_num){
+    if (finish_calc(data->pCtx)){
         return paComplete;
     }else{
         return paContinue;

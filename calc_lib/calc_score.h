@@ -24,4 +24,5 @@ typedef struct {
 int calc_init(char *music_name, CalcCtx **pOutCtx);
 void calc_uninit(CalcCtx *pInCtx);
 int calc_score(short *frame_stream, int len, int start_time, CalcCtx *pCtx);
+int finish_calc(CalcCtx *pCtx);
 
